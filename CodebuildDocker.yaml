@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login --registry-ids 633748029103 --no-include-email --region $AWS_DEFAULT_REGION)
+
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t slacker:$CODEBUILD_RESOLVED_SOURCE_VERSION .
+      - docker tag slacker:$CODEBUILD_RESOLVED_SOURCE_VERSION 633748029103.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/slacker:$CODEBUILD_RESOLVED_SOURCE_VERSION
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push 633748029103.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/slacker:$CODEBUILD_RESOLVED_SOURCE_VERSION
